@@ -22,6 +22,10 @@ export const navigation = [
         href: '/docs/drift-dataset',
       },
       { title: 'Uncrewed Aerial Vehicles (UAVs)', href: '/docs/uav-dataset' },
+      {
+        title: 'DDAD - Dense Depth for Autonomous Driving',
+        href: '/docs/ddad-dataset',
+      },
     ],
   },
 ]
