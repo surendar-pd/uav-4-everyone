@@ -1,233 +1,160 @@
 ---
-title: Coherent OFDM Radar Backscatter
+title: Coherent UAV target modelling for OFDM radar
 nextjs:
   metadata:
-    title: Coherent OFDM Radar Backscatter Modelling for Drones
-    description: A method for predicting OFDM radar backscatter from uncrewed aerial vehicles (UAVs) using augmented Martin-Mulgrew model and point-scatterer framework.
+    title: Coherent UAV target modelling for OFDM radar
+    description: A method for predicting pulsed Orthogonal Frequency Division Multiplexing (OFDM) radar backscatter signal reflected off of dark Uncrewed Aerial Vehicles (UAVs) using a closed-form mathematical model.
 ---
 
-A method for predicting OFDM radar backscatter from uncrewed aerial vehicles (UAVs). It augments the Martin–Mulgrew model and proposes a point-scatterer framework to simulate micro-Doppler and range responses.
+This work allows the predicting of pulsed Orthogonal Frequency Division Multiplexing (OFDM) radar backscatter signal reflected off of dark Uncrewed Aerial Vehicles (UAV)s; ``dark'' meaning the UAV does not actively emit electromagnetic radiation. Modeling radar backscatter from UAV movement in any orientation and position is challenging as the UAV's local positions and micro-velocities must continually be updated as the simulation progresses in time. The proposed mathematical model simplifies the process of constructing these simulations by introducing reference frames anchored to specific points on the UAV and making logical simplifications. The proposed mathematical model allows a simulation designer to construct the radar target in any arbitrary topology to generate micro-Doppler signatures and range-responses with a closed-form solution. The result of the model is compared to standard simulation techniques which have been shown to match real-world data, showing that the model is accurate.
 
----
+## How to use
 
-## Overview
+The main simulation tool is found in the uav_backscatter_simulator.m file. One may simulate a large variety of scenarios for UAV(s) in range of a monostatic OFDM transeiver. The code is written in a general manner but with the following scenario in-mind: the monostatic transceiver is at [0,0,0] in the coordinate system and one UAV's center-of-mass is located at [100,0,0] meters. Throughout the simulation, the drone only hovers at this fixed location and does not move. The effect of the spinning propellers is shown through the simulation output.
 
-**Title**: Dataset: Baseband simulation data
-
-**Authors**: Daniel Charron, Miodrag Bolic, Iraj Mantegh
-
-**Abstract**: This research presents a method for predicting OFDM radar backscatter from uncrewed aerial vehicles (UAVs). It augments the Martin–Mulgrew model and proposes a point-scatterer framework to simulate micro-Doppler and range responses. The system is tested via full-system simulation with MATLAB Phased Array Toolbox to validate theoretical predictions.
-
-**Keywords**: OFDM, 5G, UAV, micro-Doppler, radar simulation, backscatter modelling
-
-### Research Specifications
-
-```python
-# Simulation parameters
-simulation_config = {
-    "transceiver_frequency": "28-50 GHz OFDM",
-    "transmit_power": "3.16-10 W",
-    "sampling_frequency": "14.4 MHz",
-    "pulse_count": 2000,
-    "antenna_config": "Mono-static, single transceiver",
-    "target": "4-propeller drone with 4 blades per propeller",
-    "propeller_rpm": 20000,
-    "range_resolution": "~10.4 m",
-    "maximum_range": "~150.8 m"
-}
-```
-
----
-
-## Sample & Results Showcase
-
-Theoretical models were validated against MATLAB-based simulations. Micro-Doppler signatures and range-speed plots clearly capture rotational components of drone propellers. Both Martin-Mulgrew and point-scatterer models successfully predict spectral spread and echo responses under OFDM radar pulses.
-
-### Baseline Findings
-
-- **Doppler spread**: Aligned with theoretical bandwidth predictions
-- **Rotational frequencies**: 20k RPM, carrier: 28–50 GHz
-- **Range resolution**: ~10.4 m
-- **Maximum range**: ~150.8 m
-
-![Baseband Frequency Spectrum](https://bnodwlie6g.ufs.sh/f/Uo47cnkptDxChsaA1RS2k4mpN9d5XIxDAb6MtoeuQc07TByO)
-
-The frequency spectrum analysis shows the comparison between simulated and theoretical received signals, demonstrating the effectiveness of our OFDM radar backscatter modeling approach. The plots illustrate:
-
-- **Rx simulation (red)**: Noisy received signal with energy concentrated in the central frequency band
-- **Rx theoretical (green)**: Smooth theoretical prediction matching the simulation envelope
-- **Transmitted (blue)**: Ideal transmitted signal at center frequency
-- **Max ± velocity (gray lines)**: Doppler shift boundaries defining the processing window
-
-```python
-# Performance metrics
-performance_results = {
-    "doppler_spread_alignment": "Theoretical bandwidth predictions",
-    "rotational_frequencies": "20k RPM",
-    "carrier_frequency": "28-50 GHz",
-    "range_resolution": "10.4 m",
-    "max_range": "150.8 m",
-    "snr_comparison": "Small SNR difference between models"
-}
-```
-
-In this first simulation, a full system simulation is done in MATLAB's Phased Array package to obtain the backscatter CW radar signal. This noisy signal is compared to the output of the augmented MM model's prediction to show that the same band is occupied though with a small SNR.
-
----
-
-## Experiment Description
-
-### Simulation Setup
-
-**Simulation Tool**: MATLAB Phased Array Toolbox
-
-**Transceiver Frequency**: 28–50 GHz OFDM
-
-**Transmit Power**: 3.16–10 W
-
-**Sampling Frequency**: 14.4 MHz
-
-**Pulse Count**: 2000 OFDM radar pulses
-
-**Antenna Configuration**: Mono-static, single transceiver
-
-**Target**: 4-propeller drone with 4 blades per propeller
-
-**Propeller RPM**: 20,000
-
-**Backscatter Models**: Martin-Mulgrew (augmented), point-scatterer model
-
-**Simulation Domain**: Static + dynamic (blade) components
-
-### Core Concepts Implemented
-
-- **5G NR-conformant OFDM pulse design**
-- **Micro-Doppler signal synthesis for rotating blades**
-- **Use of Swerling models for RCS variability**
+If one would like to calculate the received data matrix from a different scenario, one would have to update the simulation parameters to what is desired (e.g. carrier frequency, number of subcarriers, topology of UAV, number of UAVs, etc). The functions which control how the UAVs move through space must also be updated. These two functions follow:
 
 ```matlab
-% MATLAB simulation code example
-function [backscatter_signal] = simulate_ofdm_radar(params)
-    % Generate OFDM subcarriers
-    ofdm_signal = generate_ofdm_pulse(params);
 
-    % Apply micro-Doppler effects
-    doppler_signal = apply_micro_doppler(ofdm_signal, params.rpm);
+function [Omega,x_p_u,R_p_u,f_rot] = update_prop_params(t_p, i)
 
-    % Simulate backscatter using Martin-Mulgrew model
-    backscatter_signal = martin_mulgrew_model(doppler_signal, params);
+    global rpm  Omega_global x_p_u_global R_p_u_global PRF f_rot_global;
 
-    % Apply matched filtering
-    filtered_signal = matched_filter(backscatter_signal, params);
+    % same rotation frequency for all blades for all sim time.
 
-    return filtered_signal;
+    f_rot = f_rot_global(i);
+
+    
+
+    % blade angle changes based on the speed of their rotation
+
+    % they all share the same rotation speed so f_rot can be used
+
+    Omega = Omega_global(i) + f_rot/PRF;
+
+    % the position and orientation of the ith propeller wrt the center of 
+
+    % the drone is always the same for this simulation
+
+    x_p_u = x_p_u_global(1:3,i);
+
+    R_p_u = R_p_u_global(1:3,1:3,i);
+
 end
+
+function [x_u_o,x_t_o,v_u_o,v_t_o,R_u_o,f_eps,sigma] = update_params(t_p)
+
+    global R_m RCS_static;
+
+    x_u_o = [R_m;0;0]; 
+
+    x_t_o = [0;0;0];
+
+    v_t_o = [0;0;0];
+
+    v_u_o = [0;0;0];
+
+    R_u_o = eul2rotm([0 0 0]);
+
+    f_eps = 0;
+
+    sigma = RCS_static;
+
+end
+
 ```
 
----
+Each of the function outputs are well defined in both the conference paper (ref) and the thesis (ref). If a user would like to make a change to the UAV's trajectory, for example, they would have to change the behavior of the update_params(t_p) function to return the position of the center-of-mass of the UAV, x_u_o, as well as its velocity, v_u_o, as a function of the time in the simulation (t_p). 
 
-## Downloadable Datasets
+The code offers a way to compare this result with the state-of-the-art simulation point-scatterer methodology through both comparing it with a third-party simulation and with a version which has been implemented by the author. If a similar comparison would be desired by the user, they must implement the code to calculate the positions and velocities of each of the point-scatterers in each of the UAV targets themselves and alter what has been written for the specific scenario. This part may prove challenging which emphasizes the benefit of the novel simulation methodology.
 
-| Dataset                                | Description                              | Download      |
-| -------------------------------------- | ---------------------------------------- | ------------- |
-| `DASC_Charron_r_ps.csv`                | Radar point scatterer simulation dataset | [Download](#) |
-| `DASC_Charron_r_mm.csv`                | Martin-Mulgrew model dataset             | [Download](#) |
-| `DASC_Charron_r_fss.csv`               | Frequency spread signal output           | [Download](#) |
-| `DASC_Charron_baseband_TX_fft.csv`     | Baseband transmit FFT spectrum           | [Download](#) |
-| `DASC_Charron_baseband_MM_fft.csv`     | MM model FFT response                    | [Download](#) |
-| `DASC_Charron_baseband_fss_RX_fft.csv` | Received signal FFT from FSS model       | [Download](#) |
+Many figures can be regenerated, such as the micro-Doppler signatures, the range-speed responses, etc. through the other code files: show_fft_slice.m (ref), show_td_sig.m (ref), compare_td_sigs.m (ref). 
 
-### Dataset Usage
+## Real-World Data Micro-Doppler Processing
 
-```python
-# Load and process radar simulation data
-import pandas as pd
-import numpy as np
+Data has been collected experimentally from spinning a rotor in a bistatic configuration, where the TX and RX channels use separate antennas. The setup is shown in the appendix of the thesis defence presentation slides (ref). The collected data is processed in the processing.m (ref) file. 
 
-def load_radar_dataset(filename):
-    """Load radar simulation dataset"""
-    data = pd.read_csv(filename)
-    return data
+### Code explanation
 
-def analyze_micro_doppler(data):
-    """Analyze micro-Doppler signatures"""
-    # Apply FFT for frequency analysis
-    fft_data = np.fft.fft(data['signal'])
-
-    # Apply STFT for time-frequency analysis
-    stft_data = apply_stft(data['signal'])
-
-    return fft_data, stft_data
-
-# Example usage
-ps_data = load_radar_dataset('DASC_Charron_r_ps.csv')
-mm_data = load_radar_dataset('DASC_Charron_r_mm.csv')
-```
-
----
-
-## Code Implementation
-
-Simulation code was written in MATLAB using the Phased Array System Toolbox. Signal models included OFDM subcarrier generation, matched filtering, and micro-Doppler analysis using FFT and Kaiser-window-based STFT. A matched filter was applied with FIR filtering of each radar pulse.
-
-### Key Algorithms
+First, one of the radar received data files are loaded into memory. The following code shows which file is which and opens the received data resulting from the propeller spinning at its highest speed.
 
 ```matlab
-% Micro-Doppler analysis with STFT
-function [stft_result] = micro_doppler_stft(signal, params)
-    % Apply Kaiser window
-    window = kaiser(params.window_length, params.beta);
 
-    % Compute STFT
-    [S, F, T] = spectrogram(signal, window, params.noverlap, params.nfft, params.fs);
+% STATIC
 
-    % Extract micro-Doppler components
-    micro_doppler = extract_micro_doppler_components(S, F, T);
+file0 = 'G:\Daniel Test 20251028\File.iq\File_2025-10-29165731.complex.1ch.float32';
 
-    return micro_doppler;
-end
+% MEDIUM
 
-% OFDM pulse generation
-function [ofdm_pulse] = generate_ofdm_pulse(params)
-    % Generate subcarriers
-    subcarriers = generate_subcarriers(params.n_subcarriers);
+file1 = 'G:\Daniel Test 20251028\File_001.iq\File_2025-10-29165844.complex.1ch.float32';
 
-    % Apply 5G NR modulation
-    modulated = apply_5g_nr_modulation(subcarriers, params);
+% SLOW
 
-    % Add cyclic prefix
-    ofdm_pulse = add_cyclic_prefix(modulated, params.cp_length);
+file2 = 'G:\Daniel Test 20251028\File_002.iq\File_2025-10-29170243.complex.1ch.float32';
 
-    return ofdm_pulse;
-end
+% FAST
+
+file3 = 'G:\Daniel Test 20251028\File_003.iq\File_2025-10-29170840.complex.1ch.float32';
+
+fid = fopen(file3, 'rb');
+
 ```
 
----
+Based on how the data is stored, the real part of the signal is contained in the even index data bins while the imaginary data is in the odd index. These are loaded into the iq data matrix.
 
-## Version History
+```matlab
 
-| Date | Version | Details                                                                                      |
-| ---- | ------- | -------------------------------------------------------------------------------------------- |
-| 2025 | v1.0    | Initial release of simulation model and theoretical framework for OFDM radar drone detection |
+% I = even index, Q = odd index
 
-### Future Work
+N_samples = length(data)/2;
 
-- **v1.1** (Planned): Additional drone models and flight patterns
-- **v2.0** (Planned): Real-world validation with hardware-in-the-loop testing
+iq = complex(data(1:2:2*N_samples), data(2:2:2*N_samples));
 
----
+```
 
-## Contact & Support
+Next, based on the speed of the propeller and the sampling frequency during data collection in the experiment, downsampling is performed to increase the frequency resolution of the resulting micro-Doppler signature plot. The _re appendix to the variables indicates the variables have been resampled.
 
-**Lead Author**: Daniel Charron, University of Ottawa
+```matlab
 
-**Co-authors**: Miodrag Bolic (uOttawa), Iraj Mantegh (NRC Canada)
+downsample_rate = 10;
 
-**Email**: [miodrag.bolic@uottawa.ca](mailto:miodrag.bolic@uottawa.ca)
+fs_re = fs/downsample_rate;
 
-**Support Timeline**: Usually replies within 72 hours
+iq_re = decimate(iq,downsample_rate);
 
-### Citation
+```
+
+The signal is then altered to remove its mean from each of the data cells. This ensures the signal is better centered around an amplitude of 0 and thus produces more insightful Fourier transforms.
+
+```matlab
+
+iq_re = iq_re - mean(iq_re);
+
+```
+
+Next, we intend to perform time-frequency analysis on the signal through Short Time Fourier Transform (STFT). A large overlap window is chosen to provide smoother transitions between adjacent times. We also allocate twice the window size for the resulting FFT which allows for additional smoothing of the FFT signal. Note that doing this does not increase the precision of the resulting FFT as no additional information is gained. 
+
+```matlab
+
+exponent = 11;
+
+window = hamming(2^exponent);
+
+N_overlap = round(0.95*length(window));
+
+nfft = 2^(exponent+1);
+
+% perform the STFT and plot it
+
+[s,f,ts] = spectrogram(iq_re,window, N_overlap, nfft, fs_re, 'centered');
+
+Sdb = 20*log10(abs(s));
+
+```
+
+The plots are then generated and their frequency and time resolutions are displayed.
+
+## References
 
 ```bibtex
 @inproceedings{dasc2025drone,
@@ -238,7 +165,3 @@ year={2025},
 organization={"IEEE"}
 }
 ```
-
-{% callout title="Research Impact" %}
-This work provides a comprehensive framework for OFDM radar-based drone detection, enabling improved counter-drone systems and autonomous navigation capabilities through advanced micro-Doppler analysis.
-{% /callout %}

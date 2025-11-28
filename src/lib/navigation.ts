@@ -26,6 +26,10 @@ export const navigation = [
         title: 'DDAD - Dense Depth for Autonomous Driving',
         href: '/docs/ddad-dataset',
       },
+      {
+        title: 'Synthesized Control for In-field UAV Moving Target Interception',
+        href: '/docs/synthesized-control',
+      },
     ],
   },
 ]
