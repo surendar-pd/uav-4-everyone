@@ -1,4 +1,6 @@
-export const navigation = [
+import { getAllPages } from '@/sanity/lib/queries'
+
+export const staticNavigation = [
   {
     title: 'Introduction',
     links: [
@@ -6,30 +8,28 @@ export const navigation = [
       { title: 'About Us', href: '/docs/about-us' },
     ],
   },
-  {
-    title: 'Datasets',
-    links: [
-      {
-        title: 'UAV Payload Detection DataSet',
-        href: '/docs/uav-payload-detection',
-      },
-      {
-        title: 'Coherent OFDM Radar Backscatter',
-        href: '/docs/coherent-ofdm-radar',
-      },
-      {
-        title: 'DrIFT (Autonomous Drone Dataset)',
-        href: '/docs/drift-dataset',
-      },
-      { title: 'Uncrewed Aerial Vehicles (UAVs)', href: '/docs/uav-dataset' },
-      {
-        title: 'DDAD - Dense Depth for Autonomous Driving',
-        href: '/docs/ddad-dataset',
-      },
-      {
-        title: 'Synthesized Control for In-field UAV Moving Target Interception',
-        href: '/docs/synthesized-control',
-      },
-    ],
-  },
 ]
+
+export async function getNavigation() {
+  const pages = await getAllPages()
+
+  // Build datasets links from Sanity
+  const datasetLinks = pages
+    .filter((page: any) => page.pageType === 'dataset')
+    .map((page: any) => ({
+      title: page.title,
+      href: `/datasets/${page.slug}`,
+    }))
+
+  // Return only dynamic Sanity pages for Datasets section
+  return [
+    staticNavigation[0], // Introduction section
+    {
+      title: 'Datasets',
+      links: datasetLinks, // Only dynamic Sanity pages
+    },
+  ]
+}
+
+// Keep for backward compatibility with client components
+export const navigation = staticNavigation

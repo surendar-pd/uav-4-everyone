@@ -12,6 +12,16 @@ import { Navigation } from '@/components/Navigation'
 import { Search } from '@/components/Search'
 import { ThemeSelector } from '@/components/ThemeSelector'
 
+type NavigationLink = {
+  title: string
+  href: string
+}
+
+type NavigationSection = {
+  title: string
+  links: NavigationLink[]
+}
+
 function GitHubIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
     <svg aria-hidden="true" viewBox="0 0 16 16" {...props}>
@@ -20,7 +30,7 @@ function GitHubIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   )
 }
 
-function Header() {
+function Header({ navigation }: { navigation: NavigationSection[] }) {
   let [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -44,7 +54,7 @@ function Header() {
       )}
     >
       <div className="mr-6 flex lg:hidden">
-        <MobileNavigation />
+        <MobileNavigation navigation={navigation} />
       </div>
       <div className="relative flex grow basis-0 items-center">
         <Link href="/" aria-label="Home page">
@@ -65,13 +75,19 @@ function Header() {
   )
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({
+  children,
+  navigation
+}: {
+  children: React.ReactNode
+  navigation: NavigationSection[]
+}) {
   let pathname = usePathname()
   let isHomePage = pathname === '/'
 
   return (
     <div className="flex w-full flex-col">
-      <Header />
+      <Header navigation={navigation} />
 
       {isHomePage && <Hero />}
 
@@ -81,7 +97,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="absolute top-16 right-0 bottom-0 hidden h-12 w-px bg-linear-to-t from-slate-800 dark:block" />
           <div className="absolute top-28 right-0 bottom-0 hidden w-px bg-slate-800 dark:block" />
           <div className="sticky top-19 -ml-0.5 h-[calc(100vh-4.75rem)] w-64 overflow-x-hidden overflow-y-auto py-16 pr-8 pl-0.5 xl:w-72 xl:pr-16">
-            <Navigation />
+            <Navigation navigation={navigation} />
           </div>
         </div>
         {children}

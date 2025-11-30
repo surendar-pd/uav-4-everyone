@@ -21,7 +21,6 @@ import {
 import { Dialog, DialogPanel } from '@headlessui/react'
 import clsx from 'clsx'
 
-import { navigation } from '@/lib/navigation'
 import { type Result } from '@/markdoc/search.mjs'
 
 type EmptyObject = Record<string, never>
@@ -86,21 +85,30 @@ function useAutocomplete({
       navigator: {
         navigate,
       },
-      getSources({ query }) {
-        return import('@/markdoc/search.mjs').then(({ search }) => {
-          return [
-            {
-              sourceId: 'documentation',
-              getItems() {
-                return search(query, { limit: 5 })
-              },
-              getItemUrl({ item }) {
-                return item.url
-              },
-              onSelect: navigate,
+      async getSources({ query }) {
+        const { search } = await import('@/markdoc/search.mjs')
+        const { searchSanity } = await import('@/lib/sanitySearch')
+
+        const [markdocResults, sanityResults] = await Promise.all([
+          search(query, { limit: 3 }),
+          searchSanity(query, { limit: 3 }),
+        ])
+
+        // Combine and sort results
+        const allResults = [...sanityResults, ...markdocResults]
+
+        return [
+          {
+            sourceId: 'documentation',
+            getItems() {
+              return allResults
             },
-          ]
-        })
+            getItemUrl({ item }) {
+              return item.url
+            },
+            onSelect: navigate,
+          },
+        ]
       },
     }),
   )
@@ -161,9 +169,15 @@ function SearchResult({
 }) {
   let id = useId()
 
-  let sectionTitle = navigation.find((section) =>
-    section.links.find((link) => link.href === result.url.split('#')[0]),
-  )?.title
+  // Determine section title from URL path
+  let sectionTitle = 'Introduction'
+  const urlPath = result.url.split('#')[0]
+  if (urlPath.startsWith('/datasets')) {
+    sectionTitle = 'Datasets'
+  } else if (urlPath.startsWith('/docs')) {
+    sectionTitle = 'Datasets'
+  }
+
   let hierarchy = [sectionTitle, result.pageTitle].filter(
     (x): x is string => typeof x === 'string',
   )

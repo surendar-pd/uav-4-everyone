@@ -8,6 +8,16 @@ import { Dialog, DialogPanel } from '@headlessui/react'
 import { Logomark } from '@/components/Logo'
 import { Navigation } from '@/components/Navigation'
 
+type NavigationLink = {
+  title: string
+  href: string
+}
+
+type NavigationSection = {
+  title: string
+  links: NavigationLink[]
+}
+
 function MenuIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
     <svg
@@ -49,7 +59,11 @@ function CloseOnNavigation({ close }: { close: () => void }) {
   return null
 }
 
-export function MobileNavigation() {
+export function MobileNavigation({
+  navigation
+}: {
+  navigation: NavigationSection[]
+}) {
   let [isOpen, setIsOpen] = useState(false)
   let close = useCallback(() => setIsOpen(false), [setIsOpen])
 
@@ -95,7 +109,7 @@ export function MobileNavigation() {
               <Logomark className="h-9 w-9" />
             </Link>
           </div>
-          <Navigation className="mt-5 px-1" onLinkClick={onLinkClick} />
+          <Navigation className="mt-5 px-1" onLinkClick={onLinkClick} navigation={navigation} />
         </DialogPanel>
       </Dialog>
     </>
