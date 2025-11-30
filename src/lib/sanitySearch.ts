@@ -1,4 +1,5 @@
 import FlexSearch from 'flexsearch'
+import type { Document } from 'flexsearch'
 import { client } from '@/sanity/lib/client'
 import { groq } from 'next-sanity'
 
@@ -8,7 +9,7 @@ export type SanitySearchResult = {
   pageTitle: string
 }
 
-let searchIndex: FlexSearch.Document<any, string[]> | null = null
+let searchIndex: Document<any> | null = null
 let indexPromise: Promise<void> | null = null
 
 async function buildSearchIndex() {

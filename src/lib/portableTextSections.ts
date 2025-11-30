@@ -10,12 +10,14 @@ interface PortableTextBlock {
 export type Subsection = {
   id: string
   title: string
+  level: 3
   children?: undefined
 }
 
 export type Section = {
   id: string
   title: string
+  level: 1 | 2
   children: Array<Subsection>
 }
 
@@ -50,12 +52,14 @@ export function collectPortableTextSections(
           sections[sections.length - 1].children.push({
             id,
             title,
+            level: 3,
           })
         } else if (level === 'h2') {
           // H2 is a main section
           sections.push({
             id,
             title,
+            level: 2,
             children: [],
           })
         } else if (level === 'h1') {
@@ -63,6 +67,7 @@ export function collectPortableTextSections(
           sections.push({
             id,
             title,
+            level: 1,
             children: [],
           })
         }
