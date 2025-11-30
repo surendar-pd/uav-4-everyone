@@ -55,8 +55,11 @@ export default function withSearch(nextConfig = {}) {
 
             let files = glob.sync('**/page.md', { cwd: pagesDir })
             let data = files.map((file) => {
+              // Remove route groups (e.g., (main)) from the URL
               let url =
-                file === 'page.md' ? '/' : `/${file.replace(/\/page\.md$/, '')}`
+                file === 'page.md'
+                  ? '/'
+                  : `/${file.replace(/\/page\.md$/, '').replace(/\([^)]+\)\//g, '')}`
               let md = fs.readFileSync(path.join(pagesDir, file), 'utf8')
 
               let sections

@@ -1,10 +1,6 @@
-import { type Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import localFont from 'next/font/local'
 import clsx from 'clsx'
-
-import { Providers } from '@/app/providers'
-import { Layout } from '@/components/Layout'
 
 import '@/styles/tailwind.css'
 
@@ -21,15 +17,6 @@ const lexend = localFont({
   variable: '--font-lexend',
 })
 
-export const metadata: Metadata = {
-  title: {
-    template: '%s - Docs',
-    default: 'CacheAdvance - Never miss the cache again.',
-  },
-  description:
-    'Cache every single thing your app could ever do ahead of time, so your code never even has to run at all.',
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -41,10 +28,8 @@ export default function RootLayout({
       className={clsx('h-full antialiased', inter.variable, lexend.variable)}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full bg-white dark:bg-slate-900">
-        <Providers>
-          <Layout>{children}</Layout>
-        </Providers>
+      <body>
+        {children}
       </body>
     </html>
   )

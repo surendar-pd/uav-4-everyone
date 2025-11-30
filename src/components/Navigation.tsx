@@ -2,14 +2,24 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
 
-import { navigation } from '@/lib/navigation'
+type NavigationLink = {
+  title: string
+  href: string
+}
+
+type NavigationSection = {
+  title: string
+  links: NavigationLink[]
+}
 
 export function Navigation({
   className,
   onLinkClick,
+  navigation,
 }: {
   className?: string
   onLinkClick?: React.MouseEventHandler<HTMLAnchorElement>
+  navigation: NavigationSection[]
 }) {
   let pathname = usePathname()
 

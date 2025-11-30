@@ -56,7 +56,8 @@ export type Subsection = H3Node['attributes'] & {
   children?: undefined
 }
 
-export type Section = H2Node['attributes'] & {
+export type Section = {
+  level: 1 | 2
   id: string
   title: string
   children: Array<Subsection>
